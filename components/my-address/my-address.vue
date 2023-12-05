@@ -45,10 +45,10 @@
       ...mapState('m_user', ['address']),
       ...mapGetters('m_user', ['addStr']),
       isShow() {
-        console.log(this.address)
+
         return Object.keys(this.address).length
       },
-     
+
     },
     methods: {
       ...mapMutations('m_user', ['updateAddress']),
@@ -56,12 +56,12 @@
       async chooseAddress() {
         // 直接调用小程序中的chooseAddress()方法，即可使用选择收费地址的功能
         //    返回值是一个数组：第 1 项为错误对象；第 2 项为成功之后的收货地址对象
-        const [err, result] = await uni.chooseAddress({}).catch(err => err)
-        if (err === null && result.errMsg === 'chooseAddress:ok') {
-          this.updateAddress(result)
+        const [err, succ] = await uni.chooseAddress({}).catch(err => err)
+        if (err === null && succ.errMsg === 'chooseAddress:ok') {
+          this.updateAddress(succ)
         }
         // 用户没授权
-        if (err && err.errMsg === 'chooseAddress: fail auth deny' || err.errMsg ==='chooseAddress:fail authorize no response') {
+        if (err && (err.errMsg === 'chooseAddress:fail auth deny' || err.errMsg === 'chooseAddress:fail authorize no response')) {
           this.reAuth() // 调用this.reAuth() 方法，向用户重新发起授权申请
         }
       },
@@ -79,8 +79,8 @@
         if (confirmResult.cancel) return uni.$showMsg('取消了授权')
         if (confirmResult.confirm) return uni.openSetting({
           success: (settingResult) => {
-           if(!settingResult.authSetting['scope.address']) return uni.$showMsg('取消了授权!')
-           if(settingResult.authSetting['scope.address'])return uni.$showMsg('授权成功!')
+            if (!settingResult.authSetting['scope.address']) return uni.$showMsg('取消了授权!')
+            if (settingResult.authSetting['scope.address']) return uni.$showMsg('授权成功!')
           }
         })
       }
